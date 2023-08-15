@@ -1,8 +1,7 @@
 export const environment = {
   identity: {
-    clientId: 'b067150f-211c-4ec0-a94c-607233cf1131',
-    authority:
-      'https://login.microsoftonline.com/e0af84d3-6362-4bdd-aebe-dbfbe9a3c0a4',
+    tenantName: 'southparkchathamil',
     redirectUri: 'http://localhost:4200',
+    clientId: '3f7645ed-b21d-4437-a1c1-cbaf876f67fb',
   },
 };

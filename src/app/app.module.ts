@@ -14,13 +14,29 @@ import {
   MsalRedirectComponent,
   MsalGuard,
   MsalInterceptor,
+  MsalGuardConfiguration,
+  MSAL_GUARD_CONFIG,
+  MSAL_INSTANCE,
+  MsalBroadcastService,
+  MsalService,
 } from '@azure/msal-angular'; // Import MsalInterceptor
-import { InteractionType, PublicClientApplication } from '@azure/msal-browser';
+import {
+  IPublicClientApplication,
+  InteractionType,
+  PublicClientApplication,
+} from '@azure/msal-browser';
 import { environment } from 'src/environments/environment.development';
+import { loginRequest, msalConfig } from 'src/auth-config';
+export function MSALGuardConfigFactory(): MsalGuardConfiguration {
+  return {
+    interactionType: InteractionType.Redirect,
+    authRequest: loginRequest,
+  };
+}
 
-const isIE =
-  window.navigator.userAgent.indexOf('MSIE ') > -1 ||
-  window.navigator.userAgent.indexOf('Trident/') > -1;
+export function MSALInstanceFactory(): IPublicClientApplication {
+  return new PublicClientApplication(msalConfig);
+}
 
 @NgModule({
   declarations: [AppComponent, HomeComponent],
@@ -32,39 +48,19 @@ const isIE =
     MatToolbarModule,
     MatListModule,
     HttpClientModule,
-    MsalModule.forRoot(
-      new PublicClientApplication({
-        auth: {
-          clientId: environment.identity.clientId,
-          authority: environment.identity.authority,
-          redirectUri: environment.identity.redirectUri,
-        },
-        cache: {
-          cacheLocation: 'localStorage',
-          storeAuthStateInCookie: isIE,
-        },
-      }),
-      {
-        interactionType: InteractionType.Redirect,
-        authRequest: {
-          scopes: ['user.read'],
-        },
-      },
-      {
-        interactionType: InteractionType.Redirect, // MSAL Interceptor Configuration
-        protectedResourceMap: new Map([
-          ['https://graph.microsoft.com/v1.0/me', ['user.read']],
-        ]),
-      }
-    ),
   ],
   providers: [
     {
-      provide: HTTP_INTERCEPTORS,
-      useClass: MsalInterceptor,
-      multi: true,
+      provide: MSAL_INSTANCE,
+      useFactory: MSALInstanceFactory,
     },
+    {
+      provide: MSAL_GUARD_CONFIG,
+      useFactory: MSALGuardConfigFactory,
+    },
+    MsalService,
     MsalGuard,
+    MsalBroadcastService,
   ],
   bootstrap: [AppComponent, MsalRedirectComponent],
 })
