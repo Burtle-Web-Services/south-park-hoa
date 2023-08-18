@@ -10,7 +10,6 @@ import {
   Configuration,
   BrowserCacheLocation,
 } from '@azure/msal-browser';
-import { environment } from './environments/environment.development';
 
 const isIE =
   window.navigator.userAgent.indexOf('MSIE ') > -1 ||
@@ -24,36 +23,25 @@ const isIE =
 export const b2cPolicies = {
   names: {
     signUpSignIn: 'B2C_1_susi',
-    resetPassword: 'B2C_1_reset_password',
+    resetPassword: 'B2C_1_reset',
     editProfile: 'B2C_1_edit_profile',
   },
   authorities: {
     signUpSignIn: {
       authority:
-        'https://' +
-        environment.identity.tenantName +
-        '.b2clogin.com/' +
-        environment.identity.tenantName +
-        '.com/b2c_1_susi/v2.0',
+        'https://southparkhoa.b2clogin.com/southparkchathamil.com/b2c_1_susi/',
     },
     resetPassword: {
       authority:
-        'https://' +
-        environment.identity.tenantName +
-        '.b2clogin.com/' +
-        environment.identity.tenantName +
-        '.com/B2C_1_reset_password/v2.0',
+        'https://southparkhoa.b2clogin.com/southparkchathamil.com/b2c_1_reset/',
     },
     editProfile: {
       authority:
-        'https://' +
-        environment.identity.tenantName +
-        '.b2clogin.com/' +
-        environment.identity.tenantName +
-        '.com/b2c_1_edit_profile/v2.0',
+        'https://southparkhoa.b2clogin.com/southparkchathamil.com/b2c_1_edit_profile/',
     },
   },
-  authorityDomain: '' + environment.identity.tenantName + '.b2clogin.com',
+  authorityDomain:
+    'https://southparkhoa.b2clogin.com/e0af84d3-6362-4bdd-aebe-dbfbe9a3c0a4/',
 };
 
 /**
@@ -63,7 +51,7 @@ export const b2cPolicies = {
  */
 export const msalConfig: Configuration = {
   auth: {
-    clientId: environment.identity.clientId, // This is the ONLY mandatory field that you need to supply.
+    clientId: 'b7c9b951-8693-4a23-a903-ae714b0f8664', // This is the ONLY mandatory field that you need to supply.
     authority: b2cPolicies.authorities.signUpSignIn.authority, // Defaults to "https://login.microsoftonline.com/common"
     knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
     redirectUri: '/auth', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.

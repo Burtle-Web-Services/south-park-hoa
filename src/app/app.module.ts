@@ -5,6 +5,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
+import { MatTableModule } from '@angular/material/table';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -26,7 +27,10 @@ import {
   PublicClientApplication,
 } from '@azure/msal-browser';
 import { environment } from 'src/environments/environment.development';
-import { loginRequest, msalConfig } from 'src/auth-config';
+import { loginRequest, msalConfig } from 'src/app/authentication/auth-config';
+import { MatCommonModule } from '@angular/material/core';
+import { MatCardModule } from '@angular/material/card';
+
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   return {
     interactionType: InteractionType.Redirect,
@@ -47,6 +51,9 @@ export function MSALInstanceFactory(): IPublicClientApplication {
     MatButtonModule,
     MatToolbarModule,
     MatListModule,
+    MatCommonModule,
+    MatCardModule,
+    MatTableModule,
     HttpClientModule,
   ],
   providers: [

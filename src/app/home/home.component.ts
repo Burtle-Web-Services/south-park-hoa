@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { filter } from 'rxjs/operators';
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
 import {
   EventMessage,
   EventType,
+  AuthenticationResult,
   InteractionStatus,
 } from '@azure/msal-browser';
-import { filter } from 'rxjs/operators';
+import { createClaimsTable } from '../authentication/claim-utils';
 
 @Component({
   selector: 'app-home',
@@ -14,6 +16,8 @@ import { filter } from 'rxjs/operators';
 })
 export class HomeComponent implements OnInit {
   loginDisplay = false;
+  displayedColumns: string[] = ['claim', 'value', 'description'];
+  dataSource: any = [];
 
   constructor(
     private authService: MsalService,
@@ -26,7 +30,8 @@ export class HomeComponent implements OnInit {
         filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS)
       )
       .subscribe((result: EventMessage) => {
-        console.log(result);
+        const payload = result.payload as AuthenticationResult;
+        this.authService.instance.setActiveAccount(payload.account);
       });
 
     this.msalBroadcastService.inProgress$
@@ -35,10 +40,20 @@ export class HomeComponent implements OnInit {
       )
       .subscribe(() => {
         this.setLoginDisplay();
+        this.getClaims(
+          this.authService.instance.getActiveAccount()?.idTokenClaims
+        );
       });
   }
 
   setLoginDisplay() {
     this.loginDisplay = this.authService.instance.getAllAccounts().length > 0;
+  }
+
+  getClaims(claims: any) {
+    if (claims) {
+      const claimsTable = createClaimsTable(claims);
+      this.dataSource = [...claimsTable];
+    }
   }
 }
