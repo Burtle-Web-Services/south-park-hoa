@@ -1,47 +1,86 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
-import { MatTableModule } from '@angular/material/table';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 
-import {
-  MsalModule,
-  MsalRedirectComponent,
-  MsalGuard,
-  MsalInterceptor,
-  MsalGuardConfiguration,
-  MSAL_GUARD_CONFIG,
-  MSAL_INSTANCE,
-  MsalBroadcastService,
-  MsalService,
-} from '@azure/msal-angular'; // Import MsalInterceptor
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import {
   IPublicClientApplication,
-  InteractionType,
   PublicClientApplication,
+  BrowserCacheLocation,
+  LogLevel,
+  InteractionType,
 } from '@azure/msal-browser';
+import {
+  MSAL_INSTANCE,
+  MSAL_INTERCEPTOR_CONFIG,
+  MsalInterceptorConfiguration,
+  MSAL_GUARD_CONFIG,
+  MsalGuardConfiguration,
+  MsalBroadcastService,
+  MsalService,
+  MsalGuard,
+  MsalRedirectComponent,
+  MsalModule,
+  MsalInterceptor,
+} from '@azure/msal-angular';
 import { environment } from 'src/environments/environment.development';
-import { loginRequest, msalConfig } from 'src/app/authentication/auth-config';
-import { MatCommonModule } from '@angular/material/core';
-import { MatCardModule } from '@angular/material/card';
+
+const GRAPH_ENDPOINT = 'Enter_the_Graph_Endpoint_Herev1.0/me';
+
+const isIE =
+  window.navigator.userAgent.indexOf('MSIE ') > -1 ||
+  window.navigator.userAgent.indexOf('Trident/') > -1;
+
+export function loggerCallback(logLevel: LogLevel, message: string) {
+  console.log(message);
+}
+
+export function MSALInstanceFactory(): IPublicClientApplication {
+  return new PublicClientApplication({
+    auth: {
+      clientId: 'ff2ca708-c707-4916-8046-e214c17a424d',
+      authority:
+        'https://login.microsoftonline.com/e0af84d3-6362-4bdd-aebe-dbfbe9a3c0a4',
+      redirectUri: environment.identity.redirectUri,
+    },
+    cache: {
+      cacheLocation: BrowserCacheLocation.LocalStorage,
+      storeAuthStateInCookie: isIE, // set to true for IE 11
+    },
+    system: {
+      loggerOptions: {
+        loggerCallback,
+        logLevel: LogLevel.Info,
+        piiLoggingEnabled: false,
+      },
+    },
+  });
+}
+
+export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
+  const protectedResourceMap = new Map<string, Array<string>>();
+  protectedResourceMap.set(GRAPH_ENDPOINT, ['user.read']);
+
+  return {
+    interactionType: InteractionType.Redirect,
+    protectedResourceMap,
+  };
+}
 
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   return {
     interactionType: InteractionType.Redirect,
-    authRequest: loginRequest,
+    authRequest: {
+      scopes: ['user.read'],
+    },
   };
 }
-
-export function MSALInstanceFactory(): IPublicClientApplication {
-  return new PublicClientApplication(msalConfig);
-}
-
 @NgModule({
   declarations: [AppComponent, HomeComponent],
   imports: [
@@ -51,12 +90,15 @@ export function MSALInstanceFactory(): IPublicClientApplication {
     MatButtonModule,
     MatToolbarModule,
     MatListModule,
-    MatCommonModule,
-    MatCardModule,
-    MatTableModule,
     HttpClientModule,
+    MsalModule,
   ],
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: MsalInterceptor,
+      multi: true,
+    },
     {
       provide: MSAL_INSTANCE,
       useFactory: MSALInstanceFactory,
@@ -64,6 +106,10 @@ export function MSALInstanceFactory(): IPublicClientApplication {
     {
       provide: MSAL_GUARD_CONFIG,
       useFactory: MSALGuardConfigFactory,
+    },
+    {
+      provide: MSAL_INTERCEPTOR_CONFIG,
+      useFactory: MSALInterceptorConfigFactory,
     },
     MsalService,
     MsalGuard,
