@@ -56,7 +56,7 @@ export const msalConfig: Configuration = {
     knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
     redirectUri: '/auth', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
     postLogoutRedirectUri: '/', // Points to window.location.origin by default.
-    protocolMode: 'AAD',
+    protocolMode: 'OIDC',
   },
   cache: {
     cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
