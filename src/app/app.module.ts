@@ -46,7 +46,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
     auth: {
       clientId: 'ff2ca708-c707-4916-8046-e214c17a424d',
       authority:
-        'https://southparkchathamil.com/e0af84d3-6362-4bdd-aebe-dbfbe9a3c0a4',
+        'https://login.microsoftonline.com/e0af84d3-6362-4bdd-aebe-dbfbe9a3c0a4',
       redirectUri: environment.identity.redirectUri,
     },
     cache: {
